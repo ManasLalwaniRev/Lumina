@@ -588,7 +588,7 @@ const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentPage, setCurrentPage] = useState('home');
   const [showAddDataModal, setShowAddDataModal] = useState(false);
-  const [showEditDataModal, setShowEditDataModal] = useState(false); // Corrected typo here
+  const [showEditDataModal, setShowEditDataModal] = useState(false); 
   
   // State for user ID, username, and role
   const [currentUserId, setCurrentUserId] = useState(null);
@@ -622,14 +622,12 @@ const App = () => {
           <HomePage
             setCurrentPage={setCurrentPage}
             openAddDataModal={() => setShowAddDataModal(true)}
-            openEditDataModal={() => setShowEditDataModal(true)} // Corrected typo here
+            openEditDataModal={() => setShowEditDataModal(true)} 
             currentUserRole={currentUserRole}
           />
         );
       case 'manage-database':
-        // If 'manage-database' still exists as a page, it should probably use a dedicated component
-        // or be removed if its functionality is now within UserProfilePage.
-        // For now, it will just show a generic message.
+        // This case will now display a generic message, as its functionality is moved
         return (
           <div className="flex justify-center items-center h-screen bg-gray-100">
             <h1 className="text-xl">Manage Database Page Content Placeholder (Consider integrating into UserProfilePage)</h1>
@@ -660,7 +658,7 @@ const App = () => {
           <HomePage
             setCurrentPage={setCurrentPage}
             openAddDataModal={() => setShowAddDataModal(true)}
-            openEditDataModal={() => setShowEditDataModal(true)} // Corrected typo here
+            openEditDataModal={() => setShowEditDataModal(true)} 
             currentUserRole={currentUserRole}
           />
         );
@@ -672,7 +670,7 @@ const App = () => {
       {isLoggedIn && (
         <nav className="bg-white shadow-md p-4 sticky top-0 z-40">
           <div className="container mx-auto flex justify-between items-center">
-            <div className="text-2xl font-bold text-gray-800">Powered By Revolve IT Solutions</div>
+            <div className="text-2xl font-bold text-gray-800">Revolve LLC</div> {/* Updated Company Name */}
             <ul className="flex space-x-6">
               <li>
                 <button
@@ -684,26 +682,7 @@ const App = () => {
                   Home
                 </button>
               </li>
-              <li>
-                <button
-                  onClick={() => setCurrentPage('accountant')}
-                  className={`text-lg font-medium transition duration-300 ease-in-out ${
-                    currentPage === 'accountant' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600'
-                  }`}
-                >
-                  Accountant
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => setCurrentPage('user-profile')}
-                  className={`text-lg font-medium transition duration-300 ease-in-out ${
-                    currentPage === 'user-profile' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600'
-                  }`}
-                >
-                  User Profile
-                </button>
-              </li>
+              {/* Removed Accountant and User Profile buttons from the global navigation bar */}
               <li>
                 {currentUsername && currentUserRole && (
                   <span className="text-gray-700 text-lg font-medium mr-4">
