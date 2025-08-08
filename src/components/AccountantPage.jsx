@@ -356,7 +356,7 @@
     import React, { useState, useEffect } from 'react';
 
     // const API_BASE_URL = 'http://localhost:5000/api/entries'; 
-    const API_BASE_URL = 'https://rev-lumina.onrender.com/api'; // Your live Render API URL
+    const API_BASE_URL = 'https://rev-lumina.onrender.com/api/entries'; // This is your live Render API URL
 
     // Helper to convert snake_case keys to camelCase.
     const snakeToCamel = (obj) => {
