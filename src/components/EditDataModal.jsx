@@ -1463,7 +1463,8 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './Modal.jsx'; // Import the generic Modal component
 
-const API_BASE_URL = 'http://localhost:5000/api/entries'; // Your backend API base URL
+// const API_BASE_URL = 'http://localhost:5000/api/entries'; // Your backend API base URL
+ const API_BASE_URL = 'https://rev-lumina.onrender.com/api/entries';
 
 // Helper to convert snake_case keys to camelCase
 const snakeToCamel = (obj) => {

@@ -89,7 +89,8 @@
 
 import React, { useState } from 'react';
 
-const API_BASE_URL = 'http://localhost:5000/api'; // Your backend API base URL
+// const API_BASE_URL = 'http://localhost:5000/api'; // Your backend API base URL
+ const API_BASE_URL = 'https://rev-lumina.onrender.com/api/entries';
 
 const LoginPage = ({ onLoginSuccess }) => { // Renamed prop to onLoginSuccess for consistency
   const [username, setUsername] = useState('');

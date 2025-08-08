@@ -778,7 +778,9 @@
 import React, { useState, useEffect } from 'react'; // Import useEffect
 import Modal from './Modal.jsx'; // Import the generic Modal component
 
-const API_BASE_URL = 'http://localhost:5000/api/entries'; // Your backend API base URL
+// const API_BASE_URL = 'http://localhost:5000/api/entries'; // Your backend API base URL
+ const API_BASE_URL = 'https://rev-lumina.onrender.com/api/entries';
+
 
 const AddDataModal = ({ onClose, userId, username }) => { // Receive userId and username
   const [formData, setFormData] = useState({
