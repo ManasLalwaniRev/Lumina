@@ -994,7 +994,7 @@ const AddDataModal = ({ onClose, userId, username }) => { // Receive userId and 
 
           <div className="col-span-1">
             <label htmlFor="pdfFilePath" className="block text-sm font-medium text-gray-700 mb-1">
-              PDF FILE PATH (Future Scope)
+              PDF FILE PATH
             </label>
             <input
               type="text"
@@ -1009,7 +1009,7 @@ const AddDataModal = ({ onClose, userId, username }) => { // Receive userId and 
 
           <div className="col-span-full">
             <label htmlFor="chargeCode" className="block text-sm font-medium text-gray-700 mb-1">
-              CHARGE CODE (Shift+Enter for New Line)
+              CHARGE CODE 
             </label>
             <textarea
               id="chargeCode"
