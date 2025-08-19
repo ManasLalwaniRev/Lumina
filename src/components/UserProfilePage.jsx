@@ -386,26 +386,26 @@ const UserProfilePage = ({ setCurrentPage, currentUserId, currentUsername, curre
             
             {!usersLoading && !usersError && (
               <div className="overflow-x-auto rounded-lg shadow-md border border-gray-200">
-                <table className="min-w-full divide-y divide-gray-200 table-fixed"> {/* Added table-fixed */}
+                <table className="min-w-full divide-y divide-gray-200 table-fixed">
                   <thead className="bg-gray-100">
                     <tr>
-                      {/* Apply w-1/2 to equally distribute width */}
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider w-1/2">Username</th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider w-1/2">Role</th>
+                      {/* Apply w-1/2 and text-center to headers */}
+                      <th scope="col" className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider w-1/2">Username</th>
+                      <th scope="col" className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider w-1/2">Role</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {filteredUsers.length > 0 ? ( // Display filtered users
                       filteredUsers.map((user) => (
                         <tr key={user.id} className="hover:bg-gray-50">
-                          {/* Apply w-1/2 to equally distribute width */}
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 w-1/2">{user.username}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 w-1/2">{user.role}</td>
+                          {/* Apply w-1/2 and text-center to data cells */}
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 w-1/2 text-center">{user.username}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 w-1/2 text-center">{user.role}</td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="2" className="px-6 py-4 text-center text-gray-600 italic"> {/* colSpan remains 2 */}
+                        <td colSpan="2" className="px-6 py-4 text-center text-gray-600 italic">
                           {searchQuery ? 'No matching users found.' : 'No users found.'}
                         </td>
                       </tr>
