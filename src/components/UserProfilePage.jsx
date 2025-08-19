@@ -176,10 +176,10 @@ const UserProfilePage = ({ setCurrentPage, currentUserId, currentUsername, curre
   const [message, setMessage] = useState(''); // For success/error messages for user creation
   const [isLoading, setIsLoading] = useState(false); // For user creation form
   const [users, setUsers] = useState([]); // State to store fetched users
-  const [filteredUsers, setFilteredUsers] = useState([]); // NEW: State to store filtered users
+  const [filteredUsers, setFilteredUsers] = useState([]); // State to store filtered users
   const [usersLoading, setUsersLoading] = useState(false); // For fetching user list
   const [usersError, setUsersError] = useState(null); // For fetching user list error
-  const [searchQuery, setSearchQuery] = useState(''); // NEW: State for search query
+  const [searchQuery, setSearchQuery] = useState(''); // State for search query
 
   // Clear message after a few seconds
   useEffect(() => {
@@ -221,7 +221,7 @@ const UserProfilePage = ({ setCurrentPage, currentUserId, currentUsername, curre
     }
   }, [currentUserRole]); // Dependency on currentUserRole
 
-  // NEW: useEffect to filter users whenever 'users' or 'searchQuery' changes
+  // useEffect to filter users whenever 'users' or 'searchQuery' changes
   useEffect(() => {
     const lowercasedQuery = searchQuery.toLowerCase();
     const currentFilteredUsers = users.filter(user => {
@@ -370,7 +370,7 @@ const UserProfilePage = ({ setCurrentPage, currentUserId, currentUsername, curre
           <div className="mb-10 p-6 bg-gray-50 rounded-lg shadow-inner">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Existing Users</h2>
             
-            {/* NEW: Search Input Field */}
+            {/* Search Input Field */}
             <div className="mb-4">
               <input
                 type="text"
@@ -389,7 +389,7 @@ const UserProfilePage = ({ setCurrentPage, currentUserId, currentUsername, curre
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-100">
                     <tr>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                      {/* Removed ID column header */}
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
                     </tr>
@@ -398,14 +398,14 @@ const UserProfilePage = ({ setCurrentPage, currentUserId, currentUsername, curre
                     {filteredUsers.length > 0 ? ( // Display filtered users
                       filteredUsers.map((user) => (
                         <tr key={user.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.id}</td>
+                          {/* Removed ID data cell */}
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{user.username}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{user.role}</td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="3" className="px-6 py-4 text-center text-gray-600 italic">
+                        <td colSpan="2" className="px-6 py-4 text-center text-gray-600 italic"> {/* Adjusted colSpan */}
                           {searchQuery ? 'No matching users found.' : 'No users found.'}
                         </td>
                       </tr>
