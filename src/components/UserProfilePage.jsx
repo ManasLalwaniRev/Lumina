@@ -176,8 +176,10 @@ const UserProfilePage = ({ setCurrentPage, currentUserId, currentUsername, curre
   const [message, setMessage] = useState(''); // For success/error messages for user creation
   const [isLoading, setIsLoading] = useState(false); // For user creation form
   const [users, setUsers] = useState([]); // State to store fetched users
+  const [filteredUsers, setFilteredUsers] = useState([]); // NEW: State to store filtered users
   const [usersLoading, setUsersLoading] = useState(false); // For fetching user list
   const [usersError, setUsersError] = useState(null); // For fetching user list error
+  const [searchQuery, setSearchQuery] = useState(''); // NEW: State for search query
 
   // Clear message after a few seconds
   useEffect(() => {
@@ -203,7 +205,7 @@ const UserProfilePage = ({ setCurrentPage, currentUserId, currentUsername, curre
         throw new Error(errorData.message || 'Failed to fetch users');
       }
       const data = await response.json();
-      setUsers(data);
+      setUsers(data); // Store all fetched users
     } catch (err) {
       console.error('Error fetching users:', err);
       setUsersError(`Error loading users: ${err.message}`);
@@ -218,6 +220,19 @@ const UserProfilePage = ({ setCurrentPage, currentUserId, currentUsername, curre
       fetchUsers();
     }
   }, [currentUserRole]); // Dependency on currentUserRole
+
+  // NEW: useEffect to filter users whenever 'users' or 'searchQuery' changes
+  useEffect(() => {
+    const lowercasedQuery = searchQuery.toLowerCase();
+    const currentFilteredUsers = users.filter(user => {
+      return (
+        String(user.username).toLowerCase().includes(lowercasedQuery) ||
+        String(user.role).toLowerCase().includes(lowercasedQuery)
+      );
+    });
+    setFilteredUsers(currentFilteredUsers);
+  }, [users, searchQuery]); // Dependencies: users data and search query
+
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
@@ -354,6 +369,18 @@ const UserProfilePage = ({ setCurrentPage, currentUserId, currentUsername, curre
         {currentUserRole === 'admin' && (
           <div className="mb-10 p-6 bg-gray-50 rounded-lg shadow-inner">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Existing Users</h2>
+            
+            {/* NEW: Search Input Field */}
+            <div className="mb-4">
+              <input
+                type="text"
+                placeholder="Search users by username or role..."
+                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-150 ease-in-out"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+
             {usersLoading && <p className="text-center text-gray-600">Loading users...</p>}
             {usersError && <p className="text-center text-red-600">{usersError}</p>}
             
@@ -365,23 +392,21 @@ const UserProfilePage = ({ setCurrentPage, currentUserId, currentUsername, curre
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Login IP</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {users.length > 0 ? (
-                      users.map((user) => (
+                    {filteredUsers.length > 0 ? ( // Display filtered users
+                      filteredUsers.map((user) => (
                         <tr key={user.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.id}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{user.username}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{user.role}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{user.last_login_ip || 'N/A'}</td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="4" className="px-6 py-4 text-center text-gray-600 italic">
-                          No users found.
+                        <td colSpan="3" className="px-6 py-4 text-center text-gray-600 italic">
+                          {searchQuery ? 'No matching users found.' : 'No users found.'}
                         </td>
                       </tr>
                     )}

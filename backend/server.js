@@ -1444,6 +1444,7 @@
 
 
 // backend/server.js
+// backend/server.js
 require('dotenv').config(); // Load environment variables from .env file
 
 const express = require('express');
@@ -1596,7 +1597,8 @@ app.get('/api/users', async (req, res) => {
   }
 
   try {
-    const result = await pool.query('SELECT id, username, role, last_login_ip FROM users ORDER BY username ASC');
+    // MODIFIED: Removed last_login_ip from SELECT query
+    const result = await pool.query('SELECT id, username, role FROM users ORDER BY username ASC');
     res.status(200).json(result.rows);
   } catch (err) {
     console.error('Error fetching users:', err);
