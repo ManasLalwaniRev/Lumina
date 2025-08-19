@@ -386,7 +386,7 @@ const UserProfilePage = ({ setCurrentPage, currentUserId, currentUsername, curre
             
             {!usersLoading && !usersError && (
               <div className="overflow-x-auto rounded-lg shadow-md border border-gray-200">
-                <table className="min-w-full divide-y divide-gray-200">
+                <table className="min-w-full divide-y divide-gray-200 table-fixed"> {/* Added table-fixed */}
                   <thead className="bg-gray-100">
                     <tr>
                       {/* Apply w-1/2 to equally distribute width */}
