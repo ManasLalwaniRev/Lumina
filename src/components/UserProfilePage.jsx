@@ -389,23 +389,23 @@ const UserProfilePage = ({ setCurrentPage, currentUserId, currentUsername, curre
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-100">
                     <tr>
-                      {/* Removed ID column header */}
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                      {/* Apply w-1/2 to equally distribute width */}
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider w-1/2">Username</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider w-1/2">Role</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {filteredUsers.length > 0 ? ( // Display filtered users
                       filteredUsers.map((user) => (
                         <tr key={user.id} className="hover:bg-gray-50">
-                          {/* Removed ID data cell */}
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{user.username}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{user.role}</td>
+                          {/* Apply w-1/2 to equally distribute width */}
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 w-1/2">{user.username}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 w-1/2">{user.role}</td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="2" className="px-6 py-4 text-center text-gray-600 italic"> {/* Adjusted colSpan */}
+                        <td colSpan="2" className="px-6 py-4 text-center text-gray-600 italic"> {/* colSpan remains 2 */}
                           {searchQuery ? 'No matching users found.' : 'No users found.'}
                         </td>
                       </tr>
