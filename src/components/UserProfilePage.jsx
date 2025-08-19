@@ -389,18 +389,34 @@ const UserProfilePage = ({ setCurrentPage, currentUserId, currentUsername, curre
                 <table className="min-w-full divide-y divide-gray-200 table-fixed">
                   <thead className="bg-gray-100">
                     <tr>
-                      {/* Apply w-1/2 and text-center to headers */}
-                      <th scope="col" className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider w-1/2">Username</th>
-                      <th scope="col" className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider w-1/2">Role</th>
+                      {/* Apply w-1/2, px-6 py-3 for padding, and flex for centering content */}
+                      <th scope="col" className="px-6 py-3 w-1/2">
+                        <div className="flex justify-center items-center h-full text-xs font-medium uppercase tracking-wider text-gray-500">
+                          Username
+                        </div>
+                      </th>
+                      <th scope="col" className="px-6 py-3 w-1/2">
+                        <div className="flex justify-center items-center h-full text-xs font-medium uppercase tracking-wider text-gray-500">
+                          Role
+                        </div>
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {filteredUsers.length > 0 ? ( // Display filtered users
                       filteredUsers.map((user) => (
                         <tr key={user.id} className="hover:bg-gray-50">
-                          {/* Apply w-1/2 and text-center to data cells */}
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 w-1/2 text-center">{user.username}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 w-1/2 text-center">{user.role}</td>
+                          {/* Apply w-1/2, px-6 py-4 for padding, and flex for centering content */}
+                          <td className="px-6 py-4 w-1/2">
+                            <div className="flex justify-center items-center h-full whitespace-nowrap text-sm text-gray-700">
+                              {user.username}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 w-1/2">
+                            <div className="flex justify-center items-center h-full whitespace-nowrap text-sm text-gray-700">
+                              {user.role}
+                            </div>
+                          </td>
                         </tr>
                       ))
                     ) : (
