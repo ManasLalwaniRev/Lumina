@@ -1765,13 +1765,12 @@
 
 
 
-
 require('dotenv').config(); // Load environment variables from .env file
 
 const express = require('express');
 const { Pool } = require('pg'); // PostgreSQL client
 const cors = require('cors'); // CORS middleware
-const bcrypt = require('bcrypt'); // For password hashing and comparison
+const bcrypt = require('bcrypt'); // CORRECTED: For password hashing and comparison
 
 const app = express();
 const PORT = process.env.PORT || 5000; // API will run on port 5000, or whatever is set in .env
@@ -1828,41 +1827,31 @@ pool.connect((err, client, done) => {
 });
 
 // --- Helper Function for Prime Key Generation ---
-/**
- * Generates the next prime key version based on existing keys in the database.
- * If baseKey is provided, it generates a version (e.g., '1.1', '1.2').
- * Otherwise, it generates a new base key (e.g., '2').
- */
 async function getNextPrimeKey(baseKey = null) {
   const client = await pool.connect();
   try {
     let nextPrimeKey;
     if (baseKey) {
-      // --- Logic for versioned prime key (e.g., '1.1', '1.2') ---
       const baseParts = baseKey.split('.');
-      const originalBase = baseParts[0]; // e.g., '1' from '1' or '1.1'
+      const originalBase = baseParts[0];
 
-      // CORRECTED QUERY: This query now correctly sorts the version numbers numerically.
       const result = await client.query(
         `SELECT prime_key FROM entries
          WHERE prime_key ~ $1
          ORDER BY CAST(SPLIT_PART(prime_key, '.', 2) AS INTEGER) DESC
          LIMIT 1`,
-        [`^${originalBase}\\.\\d+$`] // Regex to match 'base.number'
+        [`^${originalBase}\\.\\d+$`]
       );
 
       if (result.rows.length > 0) {
         const lastVersionKey = result.rows[0].prime_key;
         const lastVersionParts = lastVersionKey.split('.');
-        // The version is always the second part
         const currentVersion = parseInt(lastVersionParts[1], 10);
         nextPrimeKey = `${originalBase}.${currentVersion + 1}`;
       } else {
-        // If no versions exist for this base, start with .1
         nextPrimeKey = `${originalBase}.1`;
       }
     } else {
-      // --- Logic for new base prime key (e.g., '1', '2') ---
       const result = await client.query(`
         SELECT prime_key FROM entries
         WHERE prime_key NOT LIKE '%.%'
@@ -1894,7 +1883,7 @@ async function getNextPrimeKey(baseKey = null) {
 
 // --- API Endpoints ---
 
-// POST endpoint for creating a new user
+// POST for creating a new user
 app.post('/api/users/new', async (req, res) => {
   const { username, password_hash, role } = req.body;
 
@@ -1919,7 +1908,7 @@ app.post('/api/users/new', async (req, res) => {
   }
 });
 
-// GET endpoint for fetching all users (Admin only)
+// GET all users (Admin only)
 app.get('/api/users', async (req, res) => {
   const { userRole } = req.query;
 
@@ -1936,7 +1925,7 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
-// PATCH endpoint for updating a user's role (Admin only)
+// PATCH a user's role (Admin only)
 app.patch('/api/users/:id', async (req, res) => {
   const { id } = req.params;
   const { role, adminRole } = req.body;
@@ -1967,7 +1956,7 @@ app.patch('/api/users/:id', async (req, res) => {
 });
 
 
-// Basic Login Endpoint
+// Login Endpoint
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
   const clientIp = req.headers['x-forwarded-for'] || req.ip;
@@ -1988,7 +1977,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// GET all entries, with filtering based on user role and ID
+// GET all entries
 app.get('/api/entries', async (req, res) => {
   const { userId, userRole } = req.query;
 
@@ -2011,7 +2000,7 @@ app.get('/api/entries', async (req, res) => {
   }
 });
 
-// POST to create a new entry
+// POST a new entry
 app.post('/api/entries/new', async (req, res) => {
   const {
     creditCard, contractShortName, vendorName, chargeAmount, submitter, chargeCode, notes, pdfFilePath, userId
@@ -2036,7 +2025,7 @@ app.post('/api/entries/new', async (req, res) => {
   }
 });
 
-// PATCH to update an existing entry OR create a new version based on user role
+// PATCH an existing entry
 app.patch('/api/entries/:id', async (req, res) => {
     const { id } = req.params;
     const { userId, userRole, ...updatedFields } = req.body;
@@ -2044,7 +2033,6 @@ app.patch('/api/entries/:id', async (req, res) => {
     const client = await pool.connect();
   
     try {
-      // --- ACCOUNTANT WORKFLOW: Direct UPDATE ---
       if (userRole === 'accountant') {
         const fields = [];
         const values = [];
@@ -2074,7 +2062,6 @@ app.patch('/api/entries/:id', async (req, res) => {
         return res.status(200).json(result.rows[0]);
       }
   
-      // --- USER/ADMIN WORKFLOW: Create New Version (INSERT) ---
       const originalEntryResult = await client.query('SELECT * FROM entries WHERE id = $1', [id]);
       const originalEntry = originalEntryResult.rows[0];
   
