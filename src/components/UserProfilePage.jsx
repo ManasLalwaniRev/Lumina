@@ -455,7 +455,7 @@
 import React, { useState, useEffect } from 'react';
 import bcrypt from 'bcryptjs';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'http://localhost:5000/api/entries';
 
 const UserProfilePage = ({ setCurrentPage, currentUserId, currentUsername, currentUserRole }) => {
   const [newUsername, setNewUsername] = useState('');
