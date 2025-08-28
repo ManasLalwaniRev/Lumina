@@ -455,7 +455,7 @@
 import React, { useState, useEffect } from 'react';
 import bcrypt from 'bcryptjs';
 
-const API_BASE_URL = 'https://rev-lumina.onrender.com/api/entries';
+const API_BASE_URL = 'https://rev-lumina.onrender.com/api';
 
 const UserProfilePage = ({ setCurrentPage, currentUserId, currentUsername, currentUserRole }) => {
   const [newUsername, setNewUsername] = useState('');
