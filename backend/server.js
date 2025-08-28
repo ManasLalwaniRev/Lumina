@@ -1765,22 +1765,22 @@
 
 
 
-require('dotenv').config(); // Load environment variables from .env file
+
+require('dotenv').config(); 
 
 const express = require('express');
-const { Pool } = require('pg'); // PostgreSQL client
-const cors = require('cors'); // CORS middleware
-const bcrypt = require('bcrypt'); // CORRECTED: For password hashing and comparison
+const { Pool } = require('pg');
+const cors = require('cors');
+const bcrypt = require('bcrypt');
 
 const app = express();
-const PORT = process.env.PORT || 5000; // API will run on port 5000, or whatever is set in .env
+const PORT = process.env.PORT || 5000;
 
 // --- Middleware ---
-// CORS configuration to allow requests from your frontend
 const allowedOrigins = [
-  'http://localhost:3000', // Allow requests from common React development server
-  'http://localhost:5173', // THIS IS CRITICAL: Allows requests from your Vite/frontend development server
-  'https://lumina-three-rho.vercel.app' // Your deployed Vercel frontend URL
+  'http://localhost:3000',
+  'http://localhost:5173', 
+  'https://lumina-three-rho.vercel.app'
 ];
 
 app.use(cors({
@@ -1792,38 +1792,31 @@ app.use(cors({
     }
   }
 }));
-app.use(express.json()); // Enable parsing of JSON request bodies
+app.use(express.json());
 
 // --- PostgreSQL Connection Pool ---
-// Conditional SSL configuration for local vs. production environment
-const dbConfig = {}; // Initialize as an empty object
-
+const dbConfig = {};
 if (process.env.DATABASE_URL) {
-  // Use connection string for production (Render)
   dbConfig.connectionString = process.env.DATABASE_URL;
-  dbConfig.ssl = {
-    rejectUnauthorized: false // Required for Render's self-signed certificates
-  };
+  dbConfig.ssl = { rejectUnauthorized: false };
 } else {
-  // Use individual variables for local development
   dbConfig.user = process.env.DB_USER;
   dbConfig.password = process.env.DB_PASSWORD;
   dbConfig.host = process.env.DB_HOST;
   dbConfig.port = process.env.DB_PORT;
   dbConfig.database = process.env.DB_NAME;
-  dbConfig.ssl = false; // Explicitly disable SSL for local development
+  dbConfig.ssl = false;
 }
 
-const pool = new Pool(dbConfig); // Use the conditionally configured dbConfig
+const pool = new Pool(dbConfig);
 
-// Test database connection
 pool.connect((err, client, done) => {
   if (err) {
     console.error('Database connection error:', err.stack);
     return;
   }
   console.log('Successfully connected to PostgreSQL database!');
-  client.release(); // Release the client back to the pool
+  client.release();
 });
 
 // --- Helper Function for Prime Key Generation ---
@@ -1886,17 +1879,14 @@ async function getNextPrimeKey(baseKey = null) {
 // POST for creating a new user
 app.post('/api/users/new', async (req, res) => {
   const { username, password_hash, role } = req.body;
-
   if (!username || !password_hash || !role) {
     return res.status(400).json({ message: 'Username, password, and role are required.' });
   }
-
   try {
     const existingUser = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
     if (existingUser.rows.length > 0) {
       return res.status(409).json({ message: 'Username already exists.' });
     }
-
     const result = await pool.query(
       'INSERT INTO users (username, password_hash, role) VALUES ($1, $2, $3) RETURNING id, username, role',
       [username, password_hash, role]
@@ -1911,11 +1901,9 @@ app.post('/api/users/new', async (req, res) => {
 // GET all users (Admin only)
 app.get('/api/users', async (req, res) => {
   const { userRole } = req.query;
-
   if (userRole !== 'admin') {
     return res.status(403).json({ message: 'Access denied. Admin role required.' });
   }
-
   try {
     const result = await pool.query('SELECT id, username, role FROM users ORDER BY username ASC');
     res.status(200).json(result.rows);
@@ -1929,25 +1917,20 @@ app.get('/api/users', async (req, res) => {
 app.patch('/api/users/:id', async (req, res) => {
   const { id } = req.params;
   const { role, adminRole } = req.body;
-
   if (adminRole !== 'admin') {
     return res.status(403).json({ message: 'Access denied. Admin role required.' });
   }
-
   if (!role) {
     return res.status(400).json({ message: 'Role is required.' });
   }
-
   try {
     const result = await pool.query(
       'UPDATE users SET role = $1 WHERE id = $2 RETURNING id, username, role',
       [role, id]
     );
-
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'User not found.' });
     }
-
     res.status(200).json({ message: 'User role updated successfully', user: result.rows[0] });
   } catch (err) {
     console.error(`Error updating role for user ID ${id}:`, err);
@@ -1960,11 +1943,9 @@ app.patch('/api/users/:id', async (req, res) => {
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
   const clientIp = req.headers['x-forwarded-for'] || req.ip;
-
   try {
     const userResult = await pool.query('SELECT id, username, password_hash, role FROM users WHERE username = $1', [username]);
     const user = userResult.rows[0];
-
     if (user && (await bcrypt.compare(password, user.password_hash))) {
       await pool.query('UPDATE users SET last_login_ip = $1 WHERE id = $2', [clientIp, user.id]);
       res.status(200).json({ userId: user.id, username: user.username, role: user.role });
@@ -1980,18 +1961,14 @@ app.post('/api/login', async (req, res) => {
 // GET all entries
 app.get('/api/entries', async (req, res) => {
   const { userId, userRole } = req.query;
-
   try {
     let query = 'SELECT * FROM entries';
     const values = [];
-
     if (userRole !== 'admin') {
       query += ' WHERE submitter_id = $1';
       values.push(userId);
     }
-    
     query += ' ORDER BY prime_key DESC';
-
     const result = await pool.query(query, values);
     res.json(result.rows);
   } catch (err) {
@@ -2029,15 +2006,12 @@ app.post('/api/entries/new', async (req, res) => {
 app.patch('/api/entries/:id', async (req, res) => {
     const { id } = req.params;
     const { userId, userRole, ...updatedFields } = req.body;
-  
     const client = await pool.connect();
-  
     try {
       if (userRole === 'accountant') {
         const fields = [];
         const values = [];
         let valueIndex = 1;
-  
         for (const key in updatedFields) {
           if (Object.prototype.hasOwnProperty.call(updatedFields, key)) {
             const snakeCaseKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
@@ -2045,20 +2019,15 @@ app.patch('/api/entries/:id', async (req, res) => {
             values.push(updatedFields[key]);
           }
         }
-  
         if (fields.length === 0) {
           return res.status(400).json({ error: 'No fields to update.' });
         }
-  
         values.push(id);
         const updateQuery = `UPDATE entries SET ${fields.join(', ')} WHERE id = $${valueIndex} RETURNING *`;
-        
         const result = await client.query(updateQuery, values);
-        
         if (result.rows.length === 0) {
           return res.status(404).json({ error: 'Entry not found for update.' });
         }
-  
         return res.status(200).json(result.rows[0]);
       }
   
@@ -2114,7 +2083,6 @@ app.patch('/api/entries/:id', async (req, res) => {
       client.release();
     }
   });
-
 
 // Start the server
 app.listen(PORT, () => {
