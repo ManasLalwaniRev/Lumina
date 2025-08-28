@@ -566,7 +566,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from './Modal.jsx';
 
 // THIS IS THE FIX: Pointing to your local backend server
-const API_BASE_URL = 'http://localhost:5000/api/entries';
+const API_BASE_URL = 'https://rev-lumina.onrender.com/api/entries';
 
 const AddDataModal = ({ onClose, userId, username }) => {
   const [formData, setFormData] = useState({
