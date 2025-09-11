@@ -794,14 +794,29 @@ const EditDataModal = ({ onClose, userId, userRole, username }) => { // Receive 
             <label htmlFor="contractShortName" className="block text-sm font-medium text-gray-700 mb-1">
               CONTRACT SHORT NAME <span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
+            <select
+//               type="text"
+//               id="contractShortName"
+//               placeholder="e.g., ABC Project"
+//               className="w-full p-3 border border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-150 ease-in-out bg-gray-800 text-white placeholder-gray-400"
+//               value={formData.contractShortName}
+//               onChange={handleInputChange}
+
               id="contractShortName"
-              placeholder="e.g., ABC Project"
-              className="w-full p-3 border border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-150 ease-in-out bg-gray-800 text-white placeholder-gray-400"
+              className="w-full p-3 border border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-150 ease-in-out bg-gray-800 text-white appearance-none pr-8"
               value={formData.contractShortName}
               onChange={handleInputChange}
-            />
+              required
+            >
+              <option value="">Select a Contract</option>
+              <option value="NIA ADSP -1001.003">NIA ADSP -1001.003</option>
+              <option value="PCP- 1002.15">PCP- 1002.15</option>
+              <option value="Innovation Lab – 1002.17">Innovation Lab – 1002.17</option>
+              <option value="ASGCR -1002.09">ASGCR -1002.09</option>
+              <option value="IMOD – 1006.01">IMOD – 1006.01</option>
+              <option value="UPENN -2000.00006">UPENN -2000.00006</option>
+              <option value="Overhead">Overhead</option>
+            </select>
           </div>
 
           <div className="col-span-1">
