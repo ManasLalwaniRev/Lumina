@@ -811,11 +811,11 @@ const EditDataModal = ({ onClose, userId, userRole, username }) => { // Receive 
               <option value="">Select a Contract</option>
               <option value="NIA ADSP -1001.003">NIA ADSP -1001.003</option>
               <option value="PCP- 1002.15">PCP- 1002.15</option>
-              <option value="Innovation Lab – 1002.17">Innovation Lab – 1002.17</option>
+              <option value="INNOVATION LAB – 1002.17">INNOVATION LAB – 1002.17</option>
               <option value="ASGCR -1002.09">ASGCR -1002.09</option>
               <option value="IMOD – 1006.01">IMOD – 1006.01</option>
               <option value="UPENN -2000.00006">UPENN -2000.00006</option>
-              <option value="Overhead">Overhead</option>
+              <option value="OVERHEAD">OVERHEAD - OVER</option>
             </select>
           </div>
 
