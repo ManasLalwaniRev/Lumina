@@ -1764,9 +1764,335 @@
 // });
 
 
+//LATEST VERSION //
+
+// require('dotenv').config(); 
+
+// const express = require('express');
+// const { Pool } = require('pg');
+// const cors = require('cors');
+// const bcrypt = require('bcrypt');
+
+// const app = express();
+// const PORT = process.env.PORT || 5000;
+
+// // --- Middleware ---
+// const allowedOrigins = [
+//   'http://localhost:3000',
+//   'http://localhost:5173', 
+//   'https://lumina-three-rho.vercel.app'
+// ];
+
+// app.use(cors({
+//   origin: function (origin, callback) {
+//     if (!origin || allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   }
+// }));
+// app.use(express.json());
+
+// // --- PostgreSQL Connection Pool ---
+// const dbConfig = {};
+// if (process.env.DATABASE_URL) {
+//   dbConfig.connectionString = process.env.DATABASE_URL;
+//   dbConfig.ssl = { rejectUnauthorized: false };
+// } else {
+//   dbConfig.user = process.env.DB_USER;
+//   dbConfig.password = process.env.DB_PASSWORD;
+//   dbConfig.host = process.env.DB_HOST;
+//   dbConfig.port = process.env.DB_PORT;
+//   dbConfig.database = process.env.DB_NAME;
+//   dbConfig.ssl = false;
+// }
+
+// const pool = new Pool(dbConfig);
+
+// pool.connect((err, client, done) => {
+//   if (err) {
+//     console.error('Database connection error:', err.stack);
+//     return;
+//   }
+//   console.log('Successfully connected to PostgreSQL database!');
+//   client.release();
+// });
+
+// // --- Helper Function for Prime Key Generation ---
+// async function getNextPrimeKey(baseKey = null) {
+//   const client = await pool.connect();
+//   try {
+//     let nextPrimeKey;
+//     if (baseKey) {
+//       const baseParts = baseKey.split('.');
+//       const originalBase = baseParts[0];
+
+//       const result = await client.query(
+//         `SELECT prime_key FROM entries
+//          WHERE prime_key ~ $1
+//          ORDER BY CAST(SPLIT_PART(prime_key, '.', 2) AS INTEGER) DESC
+//          LIMIT 1`,
+//         [`^${originalBase}\\.\\d+$`]
+//       );
+
+//       if (result.rows.length > 0) {
+//         const lastVersionKey = result.rows[0].prime_key;
+//         const lastVersionParts = lastVersionKey.split('.');
+//         const currentVersion = parseInt(lastVersionParts[1], 10);
+//         nextPrimeKey = `${originalBase}.${currentVersion + 1}`;
+//       } else {
+//         nextPrimeKey = `${originalBase}.1`;
+//       }
+//     } else {
+//       const result = await client.query(`
+//         SELECT prime_key FROM entries
+//         WHERE prime_key NOT LIKE '%.%'
+//         ORDER BY CAST(prime_key AS INTEGER) DESC
+//         LIMIT 1;
+//       `);
+
+//       let maxNumericPart = 0;
+//       if (result.rows.length > 0) {
+//         const numericPart = parseInt(result.rows[0].prime_key, 10);
+//         if (!isNaN(numericPart)) {
+//             maxNumericPart = numericPart;
+//         }
+//       }
+//       const nextId = maxNumericPart + 1;
+//       nextPrimeKey = `${nextId}`;
+//     }
+//     return nextPrimeKey;
+//   } catch (error) {
+//     console.error('Error in getNextPrimeKey:', error);
+//     throw error;
+//   } finally {
+//     if (client) {
+//       client.release();
+//     }
+//   }
+// }
 
 
-require('dotenv').config(); 
+// // --- API Endpoints ---
+
+// // POST for creating a new user
+// app.post('/api/users/new', async (req, res) => {
+//   const { username, password_hash, role } = req.body;
+//   if (!username || !password_hash || !role) {
+//     return res.status(400).json({ message: 'Username, password, and role are required.' });
+//   }
+//   try {
+//     const existingUser = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+//     if (existingUser.rows.length > 0) {
+//       return res.status(409).json({ message: 'Username already exists.' });
+//     }
+//     const result = await pool.query(
+//       'INSERT INTO users (username, password_hash, role) VALUES ($1, $2, $3) RETURNING id, username, role',
+//       [username, password_hash, role]
+//     );
+//     res.status(201).json({ message: 'User created successfully', user: result.rows[0] });
+//   } catch (err) {
+//     console.error('Error creating new user:', err);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
+
+// // GET all users (Admin only)
+// app.get('/api/users', async (req, res) => {
+//   const { userRole } = req.query;
+//   if (userRole !== 'admin') {
+//     return res.status(403).json({ message: 'Access denied. Admin role required.' });
+//   }
+//   try {
+//     const result = await pool.query('SELECT id, username, role FROM users ORDER BY username ASC');
+//     res.status(200).json(result.rows);
+//   } catch (err) {
+//     console.error('Error fetching users:', err);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
+
+// // PATCH a user's role (Admin only)
+// app.patch('/api/users/:id', async (req, res) => {
+//   const { id } = req.params;
+//   const { role, adminRole } = req.body;
+//   if (adminRole !== 'admin') {
+//     return res.status(403).json({ message: 'Access denied. Admin role required.' });
+//   }
+//   if (!role) {
+//     return res.status(400).json({ message: 'Role is required.' });
+//   }
+//   try {
+//     const result = await pool.query(
+//       'UPDATE users SET role = $1 WHERE id = $2 RETURNING id, username, role',
+//       [role, id]
+//     );
+//     if (result.rows.length === 0) {
+//       return res.status(404).json({ message: 'User not found.' });
+//     }
+//     res.status(200).json({ message: 'User role updated successfully', user: result.rows[0] });
+//   } catch (err) {
+//     console.error(`Error updating role for user ID ${id}:`, err);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
+
+
+// // Login Endpoint
+// app.post('/api/login', async (req, res) => {
+//   const { username, password } = req.body;
+//   const clientIp = req.headers['x-forwarded-for'] || req.ip;
+//   try {
+//     const userResult = await pool.query('SELECT id, username, password_hash, role FROM users WHERE username = $1', [username]);
+//     const user = userResult.rows[0];
+//     if (user && (await bcrypt.compare(password, user.password_hash))) {
+//       await pool.query('UPDATE users SET last_login_ip = $1 WHERE id = $2', [clientIp, user.id]);
+//       res.status(200).json({ userId: user.id, username: user.username, role: user.role });
+//     } else {
+//       res.status(401).json({ message: 'Invalid credentials' });
+//     }
+//   } catch (err) {
+//     console.error('Login error:', err);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
+
+// // GET all entries
+// app.get('/api/entries', async (req, res) => {
+//   const { userId, userRole } = req.query;
+//   try {
+//     let query = 'SELECT * FROM entries';
+//     const values = [];
+//     if (userRole !== 'admin') {
+//       query += ' WHERE submitter_id = $1';
+//       values.push(userId);
+//     }
+//     query += ' ORDER BY prime_key DESC';
+//     const result = await pool.query(query, values);
+//     res.json(result.rows);
+//   } catch (err) {
+//     console.error('Error fetching entries:', err);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
+
+// // POST a new entry
+// app.post('/api/entries/new', async (req, res) => {
+//   const {
+//     creditCard, contractShortName, vendorName, chargeAmount, submitter, chargeCode, notes, pdfFilePath, userId
+//   } = req.body;
+  
+//   const chargeDate = req.body.chargeDate === '' ? null : req.body.chargeDate;
+//   const submittedDate = req.body.submittedDate === '' ? null : req.body.submittedDate;
+//   const finalChargeAmount = chargeAmount === '' ? null : chargeAmount;
+
+//   try {
+//     const newPrimeKey = await getNextPrimeKey();
+//     const result = await pool.query(
+//       `INSERT INTO entries (prime_key, credit_card, contract_short_name, vendor_name, charge_date, charge_amount, submitted_date, submitter, charge_code, notes, pdf_file_path, submitter_id)
+//        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
+//       [newPrimeKey, creditCard, contractShortName, vendorName, chargeDate,
+//        finalChargeAmount, submittedDate, submitter, chargeCode, notes, pdfFilePath, userId]
+//     );
+//     res.status(201).json(result.rows[0]);
+//   } catch (err) {
+//     console.error('Error adding new entry:', err);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
+
+// // PATCH an existing entry
+// app.patch('/api/entries/:id', async (req, res) => {
+//     const { id } = req.params;
+//     const { userId, userRole, ...updatedFields } = req.body;
+//     const client = await pool.connect();
+//     try {
+//       if (userRole === 'accountant') {
+//         const fields = [];
+//         const values = [];
+//         let valueIndex = 1;
+//         for (const key in updatedFields) {
+//           if (Object.prototype.hasOwnProperty.call(updatedFields, key)) {
+//             const snakeCaseKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+//             fields.push(`${snakeCaseKey} = $${valueIndex++}`);
+//             values.push(updatedFields[key]);
+//           }
+//         }
+//         if (fields.length === 0) {
+//           return res.status(400).json({ error: 'No fields to update.' });
+//         }
+//         values.push(id);
+//         const updateQuery = `UPDATE entries SET ${fields.join(', ')} WHERE id = $${valueIndex} RETURNING *`;
+//         const result = await client.query(updateQuery, values);
+//         if (result.rows.length === 0) {
+//           return res.status(404).json({ error: 'Entry not found for update.' });
+//         }
+//         return res.status(200).json(result.rows[0]);
+//       }
+  
+//       const originalEntryResult = await client.query('SELECT * FROM entries WHERE id = $1', [id]);
+//       const originalEntry = originalEntryResult.rows[0];
+  
+//       if (!originalEntry) {
+//         return res.status(404).json({ error: 'Original entry not found for versioning.' });
+//       }
+  
+//       if (userRole !== 'admin' && String(originalEntry.submitter_id) !== String(userId)) {
+//         return res.status(403).json({ error: 'Unauthorized to create a new version of this entry.' });
+//       }
+  
+//       const newPrimeKey = await getNextPrimeKey(originalEntry.prime_key);
+  
+//       const newEntryData = {
+//         prime_key: newPrimeKey,
+//         credit_card: updatedFields.creditCard ?? originalEntry.credit_card,
+//         contract_short_name: updatedFields.contractShortName ?? originalEntry.contract_short_name,
+//         vendor_name: updatedFields.vendorName ?? originalEntry.vendor_name,
+//         charge_date: updatedFields.chargeDate ?? originalEntry.charge_date,
+//         charge_amount: updatedFields.chargeAmount ?? originalEntry.charge_amount,
+//         submitted_date: updatedFields.submittedDate ?? originalEntry.submitted_date,
+//         submitter: updatedFields.submitter ?? originalEntry.submitter,
+//         charge_code: updatedFields.chargeCode ?? originalEntry.charge_code,
+//         notes: updatedFields.notes ?? originalEntry.notes,
+//         pdf_file_path: updatedFields.pdfFilePath ?? originalEntry.pdf_file_path,
+//         accounting_processed: updatedFields.accountingProcessed ?? originalEntry.accounting_processed,
+//         date_processed: updatedFields.dateProcessed ?? originalEntry.date_processed,
+//         apv_number: updatedFields.apvNumber ?? originalEntry.apv_number,
+//         submitter_id: originalEntry.submitter_id
+//       };
+      
+//       for (const key in newEntryData) {
+//         if (newEntryData[key] === '') {
+//           newEntryData[key] = null;
+//         }
+//       }
+  
+//       const result = await client.query(
+//         `INSERT INTO entries (prime_key, credit_card, contract_short_name, vendor_name, charge_date, charge_amount, submitted_date, submitter, charge_code, notes, pdf_file_path, accounting_processed, date_processed, apv_number, submitter_id)
+//          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING *`,
+//         Object.values(newEntryData)
+//       );
+  
+//       res.status(201).json(result.rows[0]);
+  
+//     } catch (err) {
+//       console.error(`Error in PATCH /api/entries/${id}:`, err);
+//       res.status(500).json({ error: 'Internal server error.' });
+//     } finally {
+//       client.release();
+//     }
+//   });
+
+// // Start the server
+// app.listen(PORT, () => {
+//   console.log(`Server is running on port ${PORT}`);
+// });
+
+//LATEST VERSION END //
+
+
+require('dotenv').config();
 
 const express = require('express');
 const { Pool } = require('pg');
@@ -1779,7 +2105,7 @@ const PORT = process.env.PORT || 5000;
 // --- Middleware ---
 const allowedOrigins = [
   'http://localhost:3000',
-  'http://localhost:5173', 
+  'http://localhost:5173',
   'https://lumina-three-rho.vercel.app'
 ];
 
@@ -1982,7 +2308,7 @@ app.post('/api/entries/new', async (req, res) => {
   const {
     creditCard, contractShortName, vendorName, chargeAmount, submitter, chargeCode, notes, pdfFilePath, userId
   } = req.body;
-  
+
   const chargeDate = req.body.chargeDate === '' ? null : req.body.chargeDate;
   const submittedDate = req.body.submittedDate === '' ? null : req.body.submittedDate;
   const finalChargeAmount = chargeAmount === '' ? null : chargeAmount;
@@ -2030,20 +2356,20 @@ app.patch('/api/entries/:id', async (req, res) => {
         }
         return res.status(200).json(result.rows[0]);
       }
-  
+
       const originalEntryResult = await client.query('SELECT * FROM entries WHERE id = $1', [id]);
       const originalEntry = originalEntryResult.rows[0];
-  
+
       if (!originalEntry) {
         return res.status(404).json({ error: 'Original entry not found for versioning.' });
       }
-  
+
       if (userRole !== 'admin' && String(originalEntry.submitter_id) !== String(userId)) {
         return res.status(403).json({ error: 'Unauthorized to create a new version of this entry.' });
       }
-  
+
       const newPrimeKey = await getNextPrimeKey(originalEntry.prime_key);
-  
+
       const newEntryData = {
         prime_key: newPrimeKey,
         credit_card: updatedFields.creditCard ?? originalEntry.credit_card,
@@ -2061,21 +2387,21 @@ app.patch('/api/entries/:id', async (req, res) => {
         apv_number: updatedFields.apvNumber ?? originalEntry.apv_number,
         submitter_id: originalEntry.submitter_id
       };
-      
+
       for (const key in newEntryData) {
         if (newEntryData[key] === '') {
           newEntryData[key] = null;
         }
       }
-  
+
       const result = await client.query(
         `INSERT INTO entries (prime_key, credit_card, contract_short_name, vendor_name, charge_date, charge_amount, submitted_date, submitter, charge_code, notes, pdf_file_path, accounting_processed, date_processed, apv_number, submitter_id)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING *`,
         Object.values(newEntryData)
       );
-  
+
       res.status(201).json(result.rows[0]);
-  
+
     } catch (err) {
       console.error(`Error in PATCH /api/entries/${id}:`, err);
       res.status(500).json({ error: 'Internal server error.' });
@@ -2083,6 +2409,102 @@ app.patch('/api/entries/:id', async (req, res) => {
       client.release();
     }
   });
+
+// --- API Endpoints for Settings Management (Admin Only) ---
+
+// CONTRACT OPTIONS
+app.get('/api/contract-options', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM contract_options ORDER BY name ASC');
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error('Error fetching contract options:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/contract-options', async (req, res) => {
+  const { name, userRole } = req.body;
+  if (userRole !== 'admin') {
+    return res.status(403).json({ message: 'Access denied.' });
+  }
+  if (!name) {
+    return res.status(400).json({ message: 'Name is required.' });
+  }
+  try {
+    const result = await pool.query('INSERT INTO contract_options (name) VALUES ($1) RETURNING *', [name]);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Error adding contract option:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.delete('/api/contract-options/:id', async (req, res) => {
+    const { id } = req.params;
+    const { userRole } = req.body;
+    if (userRole !== 'admin') {
+        return res.status(403).json({ message: 'Access denied.' });
+    }
+    try {
+        const result = await pool.query('DELETE FROM contract_options WHERE id = $1 RETURNING *', [id]);
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: 'Option not found.' });
+        }
+        res.status(200).json({ message: 'Contract option deleted successfully' });
+    } catch (err) {
+        console.error('Error deleting contract option:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+// CREDIT CARD OPTIONS
+app.get('/api/credit-card-options', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM credit_card_options ORDER BY name ASC');
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error('Error fetching credit card options:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/credit-card-options', async (req, res) => {
+  const { name, userRole } = req.body;
+  if (userRole !== 'admin') {
+    return res.status(403).json({ message: 'Access denied.' });
+  }
+  if (!name) {
+    return res.status(400).json({ message: 'Name is required.' });
+  }
+  try {
+    const result = await pool.query('INSERT INTO credit_card_options (name) VALUES ($1) RETURNING *', [name]);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Error adding credit card option:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.delete('/api/credit-card-options/:id', async (req, res) => {
+    const { id } = req.params;
+    const { userRole } = req.body;
+    if (userRole !== 'admin') {
+        return res.status(403).json({ message: 'Access denied.' });
+    }
+    try {
+        const result = await pool.query('DELETE FROM credit_card_options WHERE id = $1 RETURNING *', [id]);
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: 'Option not found.' });
+        }
+        res.status(200).json({ message: 'Credit card option deleted successfully' });
+    } catch (err) {
+        console.error('Error deleting credit card option:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 
 // Start the server
 app.listen(PORT, () => {
