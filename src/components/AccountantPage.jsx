@@ -1313,7 +1313,7 @@ const handleSaveAll = async () => {
                   <td className="px-6 py-2"><input type="text" placeholder="Filter..." className="w-full p-1 border rounded text-sm text-gray-700" value={filters.accountingProcessed} onChange={(e) => handleFilterChange('accountingProcessed', e.target.value)} /></td>
                   <td className="px-6 py-2"><input type="text" placeholder="Filter..." className="w-full p-1 border rounded text-sm text-gray-700" value={filters.dateProcessed} onChange={(e) => handleFilterChange('dateProcessed', e.target.value)} /></td>
                   <td className="px-6 py-2"><input type="text" placeholder="Filter..." className="w-full p-1 border rounded text-sm text-gray-700" value={filters.apvNumber} onChange={(e) => handleFilterChange('apvNumber', e.target.value)} /></td>
-                  <td className="px-6 py-2"><input type="text" placeholder="Filter..." className="w-full p-1 border rounded text-sm text-gray-700" value={filters.accountantNotes} onChange={(e) => handleFilterChange('accountantNotes', e.target.value)} /></td>
+                  <td className="px-6 py-2"><input type="text" placeholder="Filter..." className="w-full p-1 border rounded text-sm text-gray-700" value={filters.accountingNotes} onChange={(e) => handleFilterChange('accountingNotes', e.target.value)} /></td>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -1376,12 +1376,12 @@ const handleSaveAll = async () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-base text-gray-700">
                           <input
-                            type="text"
-                            value={editedData[entry.id]?.accountantNotes ?? entry.accountantNotes ?? ''}
-                            onChange={(e) => handleEditChange(entry.id, 'accountantNotes', e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400 disabled:bg-gray-200"
-                            disabled={!isEditable}
-                          />
+                          type="text"
+                          value={editedData[entry.id]?.accountingNotes ?? entry.accountingNotes ?? ''}
+                          onChange={(e) => handleEditChange(entry.id, 'accountingNotes', e.target.value)}
+                          className="w-full p-2 border border-gray-300 rounded..."
+                          disabled={!isEditable}
+                         />
                         </td>
                       </tr>
                     )
